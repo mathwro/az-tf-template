@@ -8,6 +8,8 @@ tags = {
   company     = "Demo Inc."
 }
 
+nsgNames = ["mw-ava-nsg01", "mw-ava-nsg02"]
+
 # ---- Network configuration ----
 subnet_count   = 4
 subnet_newbits = 3

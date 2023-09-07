@@ -22,6 +22,10 @@
 #    type = string
 #}
 
+variable "nsgNames" {
+  type = list(string)
+}
+
 variable "tags" {
   description = "Predetermined tags"
   type = object({

@@ -1,9 +1,11 @@
+// Base resource example with string concatination
 resource "azurerm_resource_group" "rg01" {
   name     = "${var.servicename}-rg"
   location = var.location
   tags     = var.tags
 }
 
+// Module example
 module "vnet01" {
   source      = "./Modules/az-vnet"
   servicename = var.servicename
@@ -16,4 +18,12 @@ module "vnet01" {
     vnet_cidrs     = var.vnet_cidrs
     dns_servers    = var.dns_servers
   }
+}
+
+// Base resource with for_each looping
+resource "azurerm_network_security_group" "nsg01" {
+  for_each = toset(var.nsgNames)
+  name = each.key
+  location = var.location
+  resource_group_name = azurerm_resource_group.rg01.name
 }
