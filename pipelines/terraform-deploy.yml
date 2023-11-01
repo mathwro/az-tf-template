@@ -1,0 +1,61 @@
+name: terraform_deploy
+
+trigger:
+  - none
+
+stages:
+  - stage: TerraformDeploy
+    jobs:
+      - job: TerraformDeploy
+        displayName: 'Terraform Deploy'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          # Install Terraform
+          - task: TerraformInstaller@1
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: 'latest'
+
+          # Terraform Init
+          - task: TerraformTaskV4@4
+            displayName: 'Terraform Init'
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(Build.SourcesDirectory)'
+              backendType: 'azurerm'
+              ensureBackend: true
+              backendServiceArm: 'ServiceConnection'
+              backendAzureRmResourceGroupName: 'ResourceGroupName'
+              backendAzureRmStorageAccountName: 'StorageAccountName'
+              backendAzureRmContainerName: 'ContainerName'
+              backendAzureRmKey: 'state.tfstate'
+
+          # Terraform Validate
+          - task: TerraformTaskV4@4
+            displayName: 'Terraform Validate'
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+              workingDirectory: '$(Build.SourcesDirectory)'
+
+          # Terraform Plan
+          - task: TerraformTaskV4@4
+            displayName: 'Terraform Plan'
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              workingDirectory: '$(Build.SourcesDirectory)'
+              environmentServiceNameAzureRM: 'ServiceConnection'
+              commandOptions: '-out=tfplan'
+
+          # Terraform Apply
+          - task: TerraformTaskV4@4
+            displayName: 'Terraform Apply'
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(Build.SourcesDirectory)'
+              environmentServiceNameAzureRM: 'ServiceConnection'
+              commandOptions: '-auto-approve -input=false tfplan'
