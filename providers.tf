@@ -10,13 +10,13 @@ terraform {
 
 # Reading credentials from json file
 locals {
-  credentialFile = jsondecode(file("./credentials.json"))
+  //credentialFile = jsondecode(file("./credentials.json"))
 }
 provider "azurerm" {
-  client_id       = local.credentialFile.application_id
-  client_secret   = local.credentialFile.application_secret
-  tenant_id       = local.credentialFile.tenant_id
-  subscription_id = local.credentialFile.subscription_id
+  //client_id       = local.credentialFile.application_id
+  //client_secret   = local.credentialFile.application_secret
+  //tenant_id       = local.credentialFile.tenant_id
+  //subscription_id = local.credentialFile.subscription_id
   features {}
 }
 
