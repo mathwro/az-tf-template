@@ -1,0 +1,49 @@
+name: 'Terraform'
+
+on:
+  push:
+  pull_request:
+
+env:
+  TF_VAR_tenant_id: "${{ secrets.TF_VAR_tenant_id }}"
+  TF_VAR_subscription_id: "${{ secrets.TF_VAR_subscription_id }}"
+  TF_VAR_client_id: "${{ secrets.TF_VAR_client_id }}"
+  TF_VAR_client_secret: "${{ secrets.TF_VAR_client_secret }}"
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        creds: '{"clientId":"${{ secrets.TF_VAR_client_id }}","clientSecret":"${{ secrets.TF_VAR_client_secret }}","subscriptionId":"${{ secrets.TF_VAR_subscription_id }}","tenantId":"${{ secrets.TF_VAR_tenant_id }}"}'
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Format
+      run: terraform fmt -check
+
+    - name: Terraform Plan
+      run: terraform plan -input=false
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
